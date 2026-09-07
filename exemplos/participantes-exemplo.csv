@@ -1,0 +1,6 @@
+nome;cpf;email;papel;carga horaria;observacao
+Maria Aparecida de Souza;123.456.789-00;maria.souza@exemplo.com;participante;20;
+Joao Pedro Lima;987.654.321-00;joao.lima@exemplo.com;palestrante;4;Mesa redonda de abertura
+Ana Carolina Ferreira dos Santos;111.222.333-44;ana.santos@exemplo.com;monitora;30;
+Carlos Eduardo do Nascimento;555.666.777-88;carlos.nascimento@exemplo.com;organizador;40;Comissao organizadora
+Beatriz Almeida Rocha;;beatriz.rocha@exemplo.com;participante;;

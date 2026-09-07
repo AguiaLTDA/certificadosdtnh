@@ -1,0 +1,28 @@
+{
+  "name": "certificados-univc",
+  "version": "1.0.0",
+  "description": "Plataforma de emissão, autenticação e validação de certificados em PDF do UNIVC, com Google Drive como base de dados.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "setup:google": "node scripts/google-auth.js",
+    "setup:admin": "node scripts/hash-senha.js",
+    "seed": "node scripts/seed.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "googleapis": "^144.0.0",
+    "multer": "^2.3.0",
+    "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.4"
+  },
+  "license": "MIT",
+  "private": true
+}

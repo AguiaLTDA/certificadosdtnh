@@ -1,0 +1,269 @@
+/* ------------------------------------------------------------------
+   Plataforma de Certificados UNIVC - folha de estilo unica
+   Paleta institucional definida em src/brand/univc.js (mantenha em sincronia)
+   ------------------------------------------------------------------ */
+
+:root {
+  --azul: #00305b;
+  --azul-claro: #0a6eb4;
+  --azul-suave: #e8f0f8;
+  --dourado: #c6a04e;
+  --texto: #1b2733;
+  --texto-claro: #5a6875;
+  --borda: #d7e0e9;
+  --fundo: #f2f5f9;
+  --branco: #ffffff;
+  --verde: #1a7f4b;
+  --verde-suave: #e6f5ed;
+  --vermelho: #b3261e;
+  --vermelho-suave: #fdeceb;
+  --ambar: #8a6100;
+  --ambar-suave: #fdf3e0;
+  --raio: 10px;
+  --sombra: 0 1px 2px rgba(16, 34, 51, .06), 0 6px 20px rgba(16, 34, 51, .06);
+  --fonte: "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--fonte);
+  color: var(--texto);
+  background: var(--fundo);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+h1, h2, h3 { margin: 0 0 .4em; line-height: 1.25; font-weight: 600; }
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.15rem; }
+h3 { font-size: 1rem; }
+p { margin: 0 0 .8em; }
+a { color: var(--azul-claro); }
+
+/* ---------------- Cabecalho institucional ---------------- */
+
+.topo {
+  background: var(--azul);
+  color: #fff;
+  padding: .7rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-bottom: 4px solid var(--dourado);
+}
+.topo .marca { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.topo .brasao {
+  width: 40px; height: 44px; flex: none;
+  display: grid; place-items: center;
+  background: #fff; color: var(--azul);
+  font-weight: 800; font-size: .72rem; letter-spacing: .5px;
+  border-radius: 4px 4px 16px 16px;
+  border: 2px solid var(--dourado);
+}
+.topo .brasao img { max-width: 34px; max-height: 38px; }
+.topo .titulo { font-weight: 600; font-size: 1rem; }
+.topo .subtitulo { font-size: .76rem; opacity: .82; }
+.topo .espaco { flex: 1 1 auto; }
+.topo .usuario { font-size: .82rem; opacity: .9; }
+
+/* ---------------- Navegacao ---------------- */
+
+.abas {
+  background: var(--branco);
+  border-bottom: 1px solid var(--borda);
+  display: flex;
+  gap: .25rem;
+  padding: 0 1rem;
+  overflow-x: auto;
+  position: sticky; top: 0; z-index: 20;
+}
+.abas button {
+  appearance: none; background: none; border: 0;
+  border-bottom: 3px solid transparent;
+  padding: .85rem .9rem; font: inherit; font-size: .92rem;
+  color: var(--texto-claro); cursor: pointer; white-space: nowrap;
+}
+.abas button:hover { color: var(--azul); }
+.abas button[aria-selected="true"] { color: var(--azul); border-bottom-color: var(--dourado); font-weight: 600; }
+
+/* ---------------- Layout ---------------- */
+
+main { max-width: 1180px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+.cartao {
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.cartao > h2:first-child { margin-top: 0; }
+.grade { display: grid; gap: 1rem; }
+.grade.duas { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grade.tres { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.linha { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+.entre { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.direita { margin-left: auto; }
+
+/* ---------------- Formularios ---------------- */
+
+label { display: block; font-size: .82rem; font-weight: 600; color: var(--texto-claro); margin-bottom: .3rem; }
+label .dica { font-weight: 400; }
+
+input[type="text"], input[type="password"], input[type="number"], input[type="date"],
+input[type="email"], input[type="color"], select, textarea {
+  width: 100%;
+  padding: .55rem .7rem;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  font: inherit;
+  color: var(--texto);
+  background: var(--branco);
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--azul-claro);
+  outline-offset: 1px;
+  border-color: var(--azul-claro);
+}
+input[type="color"] { padding: .2rem; height: 40px; }
+textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+.campo { margin-bottom: .9rem; }
+.ajuda { font-size: .78rem; color: var(--texto-claro); margin-top: .3rem; }
+fieldset { border: 1px solid var(--borda); border-radius: 8px; padding: .9rem; margin: 0 0 1rem; }
+legend { font-size: .8rem; font-weight: 600; color: var(--azul); padding: 0 .35rem; }
+.check { display: flex; align-items: center; gap: .5rem; font-size: .9rem; }
+.check input { width: auto; }
+.check label { margin: 0; font-weight: 400; color: var(--texto); }
+
+/* ---------------- Botoes ---------------- */
+
+.botao {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: .55rem 1rem;
+  font: inherit; font-size: .9rem; font-weight: 600;
+  cursor: pointer;
+  background: var(--azul); color: #fff;
+  display: inline-flex; align-items: center; gap: .4rem;
+  text-decoration: none;
+}
+.botao:hover { background: #00406f; }
+.botao:disabled { opacity: .55; cursor: not-allowed; }
+.botao.secundario { background: var(--branco); color: var(--azul); border-color: var(--borda); }
+.botao.secundario:hover { background: var(--azul-suave); }
+.botao.perigo { background: var(--vermelho); }
+.botao.perigo:hover { background: #8f1e17; }
+.botao.pequeno { padding: .3rem .6rem; font-size: .8rem; }
+
+/* ---------------- Tabelas ---------------- */
+
+.tabela-rolagem { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+th, td { text-align: left; padding: .6rem .7rem; border-bottom: 1px solid var(--borda); vertical-align: top; }
+th { font-size: .76rem; text-transform: uppercase; letter-spacing: .4px; color: var(--texto-claro); background: #fafcfe; }
+tbody tr:hover { background: #f7fafd; }
+td.acoes { white-space: nowrap; }
+.codigo { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: .84rem; }
+
+/* ---------------- Etiquetas e avisos ---------------- */
+
+.etiqueta {
+  display: inline-block; padding: .12rem .5rem; border-radius: 999px;
+  font-size: .74rem; font-weight: 600; border: 1px solid transparent;
+}
+.etiqueta.valido { background: var(--verde-suave); color: var(--verde); }
+.etiqueta.revogado { background: var(--vermelho-suave); color: var(--vermelho); }
+.etiqueta.alerta { background: var(--ambar-suave); color: var(--ambar); }
+.etiqueta.neutra { background: var(--azul-suave); color: var(--azul); }
+
+.aviso {
+  border-radius: 8px; padding: .7rem .9rem; font-size: .88rem;
+  border: 1px solid var(--borda); background: var(--azul-suave); color: var(--azul);
+  margin-bottom: .8rem;
+}
+.aviso.erro { background: var(--vermelho-suave); color: var(--vermelho); border-color: #f3c8c5; }
+.aviso.sucesso { background: var(--verde-suave); color: var(--verde); border-color: #bfe4d0; }
+.aviso.atencao { background: var(--ambar-suave); color: var(--ambar); border-color: #f0dcb4; }
+
+.numero { font-size: 1.9rem; font-weight: 700; color: var(--azul); line-height: 1.1; }
+.numero-rotulo { font-size: .8rem; color: var(--texto-claro); }
+
+/* ---------------- Login ---------------- */
+
+.login-tela {
+  min-height: 100vh; display: grid; place-items: center; padding: 1.5rem;
+  background: linear-gradient(160deg, var(--azul) 0%, #00548f 100%);
+}
+.login-caixa {
+  background: var(--branco); border-radius: 14px; padding: 2rem;
+  width: 100%; max-width: 380px; box-shadow: 0 20px 50px rgba(0, 0, 0, .25);
+}
+.login-caixa .brasao-grande {
+  width: 62px; height: 68px; margin: 0 auto 1rem;
+  display: grid; place-items: center; background: var(--azul); color: #fff;
+  font-weight: 800; border-radius: 6px 6px 26px 26px; border: 3px solid var(--dourado);
+}
+
+/* ---------------- Pre-visualizacao ---------------- */
+
+.previa-quadro {
+  width: 100%; height: 460px; border: 1px solid var(--borda);
+  border-radius: 8px; background: #fff;
+}
+.marcadores { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .5rem; }
+.marcadores button {
+  font: inherit; font-size: .74rem; font-family: ui-monospace, Consolas, monospace;
+  background: var(--azul-suave); color: var(--azul);
+  border: 1px solid #cfe0ee; border-radius: 999px; padding: .15rem .55rem; cursor: pointer;
+}
+.marcadores button:hover { background: #d8e8f5; }
+
+.miniatura-logo {
+  max-height: 64px; max-width: 200px; background: #fff;
+  border: 1px dashed var(--borda); border-radius: 6px; padding: .4rem;
+}
+
+/* ---------------- Pagina publica de validacao ---------------- */
+
+.validacao-corpo { background: var(--fundo); min-height: 100vh; }
+.validacao-conteudo { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+.selo-situacao {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.1rem 1.25rem; border-radius: var(--raio); margin-bottom: 1.25rem;
+  border: 1px solid transparent;
+}
+.selo-situacao .icone { font-size: 2rem; line-height: 1; }
+.selo-situacao.valido { background: var(--verde-suave); border-color: #bfe4d0; color: #14603a; }
+.selo-situacao.invalido { background: var(--vermelho-suave); border-color: #f3c8c5; color: #8f1e17; }
+.selo-situacao.atencao { background: var(--ambar-suave); border-color: #f0dcb4; color: var(--ambar); }
+.selo-situacao strong { display: block; font-size: 1.05rem; }
+
+.dados-lista { display: grid; grid-template-columns: 190px 1fr; gap: .5rem 1rem; font-size: .92rem; }
+.dados-lista dt { color: var(--texto-claro); font-weight: 600; font-size: .84rem; }
+.dados-lista dd { margin: 0; }
+@media (max-width: 560px) {
+  .dados-lista { grid-template-columns: 1fr; gap: .1rem 0; }
+  .dados-lista dd { margin-bottom: .6rem; }
+}
+
+.busca-codigo { display: flex; gap: .5rem; flex-wrap: wrap; }
+.busca-codigo input { flex: 1 1 240px; text-transform: uppercase; letter-spacing: 1px; }
+
+.rodape-institucional {
+  border-top: 1px solid var(--borda); margin-top: 2rem; padding-top: 1rem;
+  font-size: .8rem; color: var(--texto-claro); text-align: center;
+}
+
+.oculto { display: none !important; }
+.carregando { opacity: .55; pointer-events: none; }
+
+/* Impressao da pagina de validacao (comprovante) */
+@media print {
+  .abas, .topo .usuario, .botao, .busca-codigo { display: none !important; }
+  body { background: #fff; }
+  .cartao { box-shadow: none; border-color: #999; }
+}

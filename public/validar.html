@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Validacao de Certificados — UNIVC</title>
+  <meta name="description" content="Confira a autenticidade de um certificado emitido pelo UNIVC informando o codigo impresso no documento.">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2300305b'/><text x='16' y='21' font-size='11' font-family='Arial' font-weight='bold' fill='%23fff' text-anchor='middle'>UV</text></svg>">
+</head>
+<body class="validacao-corpo">
+
+<header class="topo">
+  <div class="marca">
+    <div class="brasao" id="brasao">UNIVC</div>
+    <div>
+      <div class="titulo">Validacao de Certificados</div>
+      <div class="subtitulo" id="nome-instituicao">Centro Universitario Vale do Cricare</div>
+    </div>
+  </div>
+</header>
+
+<div class="validacao-conteudo">
+
+  <div class="cartao">
+    <h1 style="font-size:1.2rem">Confira a autenticidade de um certificado</h1>
+    <p class="ajuda" style="margin-bottom:1rem">
+      Digite o codigo impresso no rodape do documento (formato
+      <span class="codigo">UNIVC-XXXX-XXXX-XXXX</span>) ou leia o QR&nbsp;Code do certificado.
+    </p>
+    <form class="busca-codigo" id="form-codigo">
+      <input id="campo-codigo" name="codigo" placeholder="UNIVC-XXXX-XXXX-XXXX"
+             autocomplete="off" spellcheck="false" aria-label="Codigo de autenticacao" required>
+      <button class="botao" type="submit">Validar</button>
+    </form>
+  </div>
+
+  <div id="resultado" aria-live="polite"></div>
+
+  <footer class="rodape-institucional" id="rodape"></footer>
+</div>
+
+<script>
+'use strict';
+const $ = (s) => document.querySelector(s);
+
+function escapar(t) {
+  const d = document.createElement('div');
+  d.textContent = t ?? '';
+  return d.innerHTML;
+}
+function dataCurta(iso) {
+  if (!iso) return '—';
+  const [a, m, d] = String(iso).slice(0, 10).split('-');
+  return a && m && d ? `${d}/${m}/${a}` : iso;
+}
+function dataHora(iso) {
+  if (!iso) return '—';
+  const dt = new Date(iso);
+  return Number.isNaN(dt.getTime()) ? iso : dt.toLocaleString('pt-BR');
+}
+function periodo(ini, fim) {
+  if (!ini && !fim) return '—';
+  if (!fim || fim === ini) return dataCurta(ini);
+  return `${dataCurta(ini)} a ${dataCurta(fim)}`;
+}
+
+let instituicao = { nome: 'Centro Universitario Vale do Cricare', sigla: 'UNIVC', site: '' };
+
+async function carregarInstituicao() {
+  try {
+    const r = await fetch('/api/publico/instituicao').then((x) => x.json());
+    instituicao = r.instituicao;
+    $('#nome-instituicao').textContent = instituicao.nome;
+    $('#brasao').textContent = instituicao.sigla;
+    $('#rodape').innerHTML =
+      `${escapar(instituicao.nome)}${instituicao.mantenedora ? ' — ' + escapar(instituicao.mantenedora) : ''}` +
+      (instituicao.site ? ` · <a href="${escapar(instituicao.site)}" rel="noopener">${escapar(instituicao.site)}</a>` : '') +
+      (instituicao.cnpj ? ` · CNPJ ${escapar(instituicao.cnpj)}` : '');
+  } catch { /* pagina funciona mesmo sem estes dados */ }
+}
+
+const SITUACOES = {
+  valido: {
+    classe: 'valido', icone: '✓',
+    titulo: 'Certificado autentico',
+    texto: 'Este documento consta nos registros da instituicao e nao foi alterado.',
+  },
+  revogado: {
+    classe: 'invalido', icone: '✕',
+    titulo: 'Certificado revogado',
+    texto: 'O documento existiu, mas foi revogado pela instituicao e nao tem validade.',
+  },
+  divergente: {
+    classe: 'atencao', icone: '!',
+    titulo: 'Registro com divergencia',
+    texto: 'O codigo existe, mas o selo digital nao confere. Procure a instituicao antes de aceitar este documento.',
+  },
+  nao_encontrado: {
+    classe: 'invalido', icone: '✕',
+    titulo: 'Certificado nao encontrado',
+    texto: 'Nenhum certificado com este codigo foi emitido. Confira a digitacao.',
+  },
+  codigo_invalido: {
+    classe: 'atencao', icone: '?',
+    titulo: 'Codigo em formato invalido',
+    texto: 'O codigo deve ter o formato UNIVC-XXXX-XXXX-XXXX.',
+  },
+};
+
+function selo(situacao) {
+  const s = SITUACOES[situacao] ?? SITUACOES.nao_encontrado;
+  return `<div class="selo-situacao ${s.classe}">
+      <div class="icone" aria-hidden="true">${s.icone}</div>
+      <div><strong>${escapar(s.titulo)}</strong><span>${escapar(s.texto)}</span></div>
+    </div>`;
+}
+
+function seloFormatado(selo) {
+  return String(selo ?? '').slice(0, 16).toUpperCase().replace(/(.{4})/g, '$1 ').trim();
+}
+
+async function validar(codigo) {
+  const alvo = $('#resultado');
+  alvo.innerHTML = '<div class="cartao ajuda">Consultando…</div>';
+  let dados;
+  try {
+    const resposta = await fetch(`/api/publico/validar/${encodeURIComponent(codigo)}`);
+    dados = await resposta.json();
+  } catch {
+    alvo.innerHTML = '<div class="cartao"><div class="aviso erro">Nao foi possivel consultar agora. Tente novamente em instantes.</div></div>';
+    return;
+  }
+
+  if (!dados.encontrado) {
+    alvo.innerHTML = `<div class="cartao">${selo(dados.situacao)}
+      <p class="ajuda">Codigo consultado: <span class="codigo">${escapar(codigo)}</span></p></div>`;
+    return;
+  }
+
+  const c = dados.certificado;
+  const e = dados.evento ?? {};
+  const linhas = [
+    ['Nome', c.nome],
+    ['Documento', c.documento || '—'],
+    ['Condicao', c.papel || 'participante'],
+    ['Evento', e.tema || c.temaEvento || '—'],
+    e.subtitulo ? ['Subtitulo', e.subtitulo] : null,
+    e.tipo ? ['Tipo', e.tipo] : null,
+    e.modalidade ? ['Modalidade', e.modalidade] : null,
+    ['Periodo', periodo(e.dataInicio, e.dataFim)],
+    e.local ? ['Local', e.local] : null,
+    ['Carga horaria', `${c.cargaHoraria} hora(s)`],
+    ['Codigo de autenticacao', `<span class="codigo">${escapar(c.codigo)}</span>`],
+    ['Emitido em', dataHora(c.emitidoEm)],
+    ['Selo digital', `<span class="codigo">${escapar(seloFormatado(c.selo))}</span>`],
+    ['Situacao', c.status === 'revogado'
+      ? `<span class="etiqueta revogado">Revogado</span>${c.motivoRevogacao ? ' — ' + escapar(c.motivoRevogacao) : ''}`
+      : '<span class="etiqueta valido">Valido</span>'],
+  ].filter(Boolean);
+
+  alvo.innerHTML = `
+    <div class="cartao">
+      ${selo(dados.situacao)}
+      <dl class="dados-lista">
+        ${linhas.map(([r, v]) => `<dt>${escapar(r)}</dt><dd>${v.startsWith?.('<') ? v : escapar(v)}</dd>`).join('')}
+      </dl>
+      <div class="linha" style="margin-top:1.25rem">
+        ${dados.linkPdf ? `<a class="botao" href="${escapar(dados.linkPdf)}" target="_blank" rel="noopener">Abrir o certificado em PDF</a>` : ''}
+        <button class="botao secundario" onclick="window.print()">Imprimir este comprovante</button>
+      </div>
+      <p class="ajuda" style="margin-top:1rem">
+        Consulta realizada em ${dataHora(dados.consultadoEm)} no endereco
+        <span class="codigo">${escapar(location.origin)}/validar/${escapar(c.codigo)}</span>.
+        Este comprovante confirma que o registro consta na base da instituicao no momento da consulta.
+      </p>
+    </div>`;
+}
+
+$('#form-codigo').addEventListener('submit', (evento) => {
+  evento.preventDefault();
+  const codigo = $('#campo-codigo').value.trim().toUpperCase();
+  if (!codigo) return;
+  history.replaceState(null, '', `/validar/${encodeURIComponent(codigo)}`);
+  validar(codigo);
+});
+
+carregarInstituicao();
+
+const daUrl = decodeURIComponent(location.pathname.replace(/^\/validar\/?/, '')).trim();
+if (daUrl) {
+  $('#campo-codigo').value = daUrl.toUpperCase();
+  validar(daUrl.toUpperCase());
+}
+</script>
+</body>
+</html>

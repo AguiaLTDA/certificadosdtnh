@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.local
+*.log
+dados-locais/
+tmp/
+.DS_Store
+credenciais/
+*.pem
+*.p12
+google-service-account.json

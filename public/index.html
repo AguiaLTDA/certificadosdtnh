@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Certificados UNIVC — Painel</title>
+  <meta name="description" content="Painel de emissao e gestao de certificados do UNIVC.">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2300305b'/><text x='16' y='21' font-size='11' font-family='Arial' font-weight='bold' fill='%23fff' text-anchor='middle'>UV</text></svg>">
+</head>
+<body>
+
+<!-- ============================ LOGIN ============================ -->
+<div id="tela-login" class="login-tela oculto">
+  <form class="login-caixa" id="form-login">
+    <div class="brasao-grande">UNIVC</div>
+    <h1 style="text-align:center;font-size:1.15rem">Certificados</h1>
+    <p style="text-align:center;color:var(--texto-claro);font-size:.85rem" id="login-instituicao">
+      Centro Universitario Vale do Cricare
+    </p>
+    <div id="login-erro" class="aviso erro oculto"></div>
+    <div class="campo">
+      <label for="login-usuario">Usuario</label>
+      <input id="login-usuario" name="usuario" autocomplete="username" required>
+    </div>
+    <div class="campo">
+      <label for="login-senha">Senha</label>
+      <input id="login-senha" name="senha" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="botao" style="width:100%;justify-content:center" type="submit">Entrar</button>
+    <p style="margin:1rem 0 0;text-align:center;font-size:.8rem">
+      <a href="/validar">Validar um certificado</a>
+    </p>
+  </form>
+</div>
+
+<!-- ============================ APLICACAO ============================ -->
+<div id="app" class="oculto">
+
+  <header class="topo">
+    <div class="marca">
+      <div class="brasao" id="brasao-topo">UNIVC</div>
+      <div>
+        <div class="titulo">Plataforma de Certificados</div>
+        <div class="subtitulo" id="topo-instituicao">Centro Universitario Vale do Cricare</div>
+      </div>
+    </div>
+    <div class="espaco"></div>
+    <span class="usuario" id="topo-usuario"></span>
+    <button class="botao secundario pequeno" id="botao-sair">Sair</button>
+  </header>
+
+  <nav class="abas" role="tablist">
+    <button role="tab" data-aba="painel" aria-selected="true">Painel</button>
+    <button role="tab" data-aba="eventos" aria-selected="false">Eventos</button>
+    <button role="tab" data-aba="emitir" aria-selected="false">Emitir certificados</button>
+    <button role="tab" data-aba="certificados" aria-selected="false">Certificados emitidos</button>
+    <button role="tab" data-aba="identidade" aria-selected="false">Identidade visual</button>
+    <button role="tab" data-aba="ajuda" aria-selected="false">Ajuda</button>
+  </nav>
+
+  <main>
+    <div id="mensagem-global"></div>
+
+    <!-- ---------------- PAINEL ---------------- -->
+    <section id="aba-painel" class="aba">
+      <div class="grade tres">
+        <div class="cartao"><div class="numero" id="n-eventos">0</div><div class="numero-rotulo">Eventos cadastrados</div></div>
+        <div class="cartao"><div class="numero" id="n-certificados">0</div><div class="numero-rotulo">Certificados emitidos</div></div>
+        <div class="cartao"><div class="numero" id="n-horas">0</div><div class="numero-rotulo">Horas certificadas</div></div>
+      </div>
+
+      <div class="cartao">
+        <h2>Situacao da plataforma</h2>
+        <div id="estado-armazenamento"></div>
+        <div id="estado-avisos"></div>
+      </div>
+
+      <div class="cartao">
+        <h2>Como funciona</h2>
+        <ol style="padding-left:1.1rem;margin:0">
+          <li><strong>Cadastre o evento</strong> — tema, carga horaria, datas, texto do certificado e layout.</li>
+          <li><strong>Emita os certificados</strong> — cole a lista de participantes ou envie um CSV.</li>
+          <li><strong>Os PDFs vao para o Google Drive</strong> — cada um com codigo unico e QR Code.</li>
+          <li><strong>Qualquer pessoa valida</strong> — lendo o QR Code ou digitando o codigo em
+            <a id="link-validacao" href="/validar" target="_blank" rel="noopener">/validar</a>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ---------------- EVENTOS ---------------- -->
+    <section id="aba-eventos" class="aba oculto">
+      <div class="cartao">
+        <div class="entre">
+          <h2 style="margin:0">Eventos</h2>
+          <button class="botao" id="botao-novo-evento">+ Novo evento</button>
+        </div>
+      </div>
+      <div class="cartao" id="lista-eventos-cartao">
+        <div class="tabela-rolagem">
+          <table>
+            <thead>
+              <tr><th>Tema</th><th>Periodo</th><th>Carga</th><th>Layout</th><th>Certificados</th><th></th></tr>
+            </thead>
+            <tbody id="lista-eventos"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Editor de evento -->
+      <div class="cartao oculto" id="editor-evento">
+        <div class="entre">
+          <h2 id="editor-titulo" style="margin:0">Novo evento</h2>
+          <button class="botao secundario pequeno" id="fechar-editor">Fechar</button>
+        </div>
+        <hr style="border:0;border-top:1px solid var(--borda);margin:1rem 0">
+
+        <form id="form-evento">
+          <div class="grade duas">
+            <div>
+              <fieldset>
+                <legend>Dados do evento</legend>
+                <div class="campo">
+                  <label for="ev-tema">Tema do evento *</label>
+                  <input id="ev-tema" name="tema" required placeholder="Semana Academica de Inovacao">
+                </div>
+                <div class="campo">
+                  <label for="ev-subtitulo">Subtitulo <span class="dica">(opcional)</span></label>
+                  <input id="ev-subtitulo" name="subtitulo" placeholder="Tecnologia, sociedade e futuro">
+                </div>
+                <div class="linha">
+                  <div class="campo" style="flex:1 1 150px">
+                    <label for="ev-tipo">Tipo</label>
+                    <input id="ev-tipo" name="tipo" placeholder="Curso de extensao" list="tipos-evento">
+                    <datalist id="tipos-evento">
+                      <option value="Curso de extensao"></option>
+                      <option value="Palestra"></option>
+                      <option value="Congresso"></option>
+                      <option value="Semana academica"></option>
+                      <option value="Minicurso"></option>
+                      <option value="Oficina"></option>
+                      <option value="Monitoria"></option>
+                      <option value="Projeto de pesquisa"></option>
+                    </datalist>
+                  </div>
+                  <div class="campo" style="flex:1 1 120px">
+                    <label for="ev-modalidade">Modalidade</label>
+                    <select id="ev-modalidade" name="modalidade">
+                      <option value="">—</option>
+                      <option>Presencial</option>
+                      <option>Online</option>
+                      <option>Hibrido</option>
+                    </select>
+                  </div>
+                  <div class="campo" style="flex:0 0 120px">
+                    <label for="ev-carga">Carga horaria *</label>
+                    <input id="ev-carga" name="cargaHoraria" type="number" min="1" max="10000" required placeholder="20">
+                  </div>
+                </div>
+                <div class="linha">
+                  <div class="campo" style="flex:1 1 150px">
+                    <label for="ev-inicio">Data de inicio</label>
+                    <input id="ev-inicio" name="dataInicio" type="date">
+                  </div>
+                  <div class="campo" style="flex:1 1 150px">
+                    <label for="ev-fim">Data de termino</label>
+                    <input id="ev-fim" name="dataFim" type="date">
+                  </div>
+                </div>
+                <div class="linha">
+                  <div class="campo" style="flex:1 1 180px">
+                    <label for="ev-local">Local</label>
+                    <input id="ev-local" name="local" placeholder="Campus Sede">
+                  </div>
+                  <div class="campo" style="flex:1 1 150px">
+                    <label for="ev-cidade">Cidade/UF</label>
+                    <input id="ev-cidade" name="cidade" placeholder="Sao Mateus/ES">
+                  </div>
+                </div>
+                <div class="campo">
+                  <label for="ev-papel">Papel padrao dos participantes</label>
+                  <input id="ev-papel" name="papelPadrao" placeholder="participante" list="papeis">
+                  <datalist id="papeis">
+                    <option value="participante"></option>
+                    <option value="palestrante"></option>
+                    <option value="ouvinte"></option>
+                    <option value="monitor"></option>
+                    <option value="organizador"></option>
+                    <option value="ministrante"></option>
+                  </datalist>
+                  <div class="ajuda">Pode ser sobrescrito por participante na hora da emissao.</div>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>Texto do certificado (vocalizacao)</legend>
+                <div class="campo">
+                  <label for="ev-modelo-texto">Comecar de um modelo pronto</label>
+                  <select id="ev-modelo-texto"><option value="">Escolher modelo…</option></select>
+                </div>
+                <div class="campo">
+                  <label for="ev-vocalizacao">Texto declarado no certificado *</label>
+                  <textarea id="ev-vocalizacao" name="vocalizacao" rows="5"></textarea>
+                  <div class="ajuda">Clique em um marcador para inserir no ponto do cursor:</div>
+                  <div class="marcadores" id="lista-marcadores"></div>
+                </div>
+                <div class="check">
+                  <input type="checkbox" id="ev-destacar" checked>
+                  <label for="ev-destacar">Imprimir o nome do participante em destaque (recomendado)</label>
+                </div>
+                <div class="campo" style="margin-top:.8rem">
+                  <label>Como vai ficar (dados ficticios)</label>
+                  <div id="previa-texto" class="aviso" style="background:#fafcfe;color:var(--texto);white-space:pre-wrap"></div>
+                </div>
+                <div class="campo">
+                  <label for="ev-conteudo">Conteudo programatico <span class="dica">(opcional — gera uma 2a pagina)</span></label>
+                  <textarea id="ev-conteudo" name="conteudoProgramatico" rows="4"
+                    placeholder="Modulo 1 - ... (4h)&#10;Modulo 2 - ... (6h)"></textarea>
+                </div>
+              </fieldset>
+            </div>
+
+            <div>
+              <fieldset>
+                <legend>Layout e tema visual</legend>
+                <div class="campo">
+                  <label for="ev-layout">Layout do certificado</label>
+                  <select id="ev-layout"></select>
+                  <div class="ajuda" id="layout-descricao"></div>
+                </div>
+                <div class="linha">
+                  <div class="campo" style="flex:1 1 130px">
+                    <label for="ev-orientacao">Orientacao</label>
+                    <select id="ev-orientacao">
+                      <option value="paisagem">Paisagem (A4 deitado)</option>
+                      <option value="retrato">Retrato (A4 em pe)</option>
+                    </select>
+                  </div>
+                  <div class="campo" style="flex:0 0 110px">
+                    <label for="ev-titulo-cert">Titulo</label>
+                    <input id="ev-titulo-cert" name="tituloCertificado" placeholder="Certificado">
+                  </div>
+                </div>
+                <div class="campo">
+                  <label for="ev-subtitulo-cert">Subtitulo impresso <span class="dica">(ex.: DE PARTICIPACAO)</span></label>
+                  <input id="ev-subtitulo-cert" name="subtituloCertificado" placeholder="de participacao">
+                </div>
+                <div class="linha">
+                  <div class="campo" style="flex:1 1 90px">
+                    <label for="cor-primaria">Cor principal</label>
+                    <input id="cor-primaria" type="color" value="#00305b">
+                  </div>
+                  <div class="campo" style="flex:1 1 90px">
+                    <label for="cor-secundaria">Cor de apoio</label>
+                    <input id="cor-secundaria" type="color" value="#0a6eb4">
+                  </div>
+                  <div class="campo" style="flex:1 1 90px">
+                    <label for="cor-destaque">Cor de destaque</label>
+                    <input id="cor-destaque" type="color" value="#c6a04e">
+                  </div>
+                </div>
+                <div class="linha" style="gap:1.2rem">
+                  <div class="check">
+                    <input type="checkbox" id="ev-marca-dagua" checked>
+                    <label for="ev-marca-dagua">Marca d'agua com a sigla</label>
+                  </div>
+                  <div class="check">
+                    <input type="checkbox" id="ev-ornamentos" checked>
+                    <label for="ev-ornamentos">Ornamentos</label>
+                  </div>
+                  <div class="check">
+                    <input type="checkbox" id="ev-ocultar-data">
+                    <label for="ev-ocultar-data">Ocultar cidade e data</label>
+                  </div>
+                </div>
+                <button type="button" class="botao secundario" id="botao-previa">Ver previa em PDF</button>
+                <button type="button" class="botao secundario" id="botao-restaurar-cores">Cores institucionais</button>
+              </fieldset>
+
+              <fieldset>
+                <legend>Assinaturas (ate 4)</legend>
+                <div id="lista-assinaturas"></div>
+                <button type="button" class="botao secundario pequeno" id="botao-add-assinatura">+ Adicionar assinatura</button>
+              </fieldset>
+
+              <div class="campo">
+                <label>Pre-visualizacao</label>
+                <iframe id="previa-quadro" class="previa-quadro" title="Previa do certificado"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <div class="linha" style="margin-top:1rem">
+            <button class="botao" type="submit" id="botao-salvar-evento">Salvar evento</button>
+            <button class="botao secundario" type="button" id="botao-reemitir-evento">Reemitir todos os certificados deste evento</button>
+            <span class="direita"></span>
+            <button class="botao perigo secundario" type="button" id="botao-excluir-evento">Excluir evento</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ---------------- EMITIR ---------------- -->
+    <section id="aba-emitir" class="aba oculto">
+      <div class="cartao">
+        <h2>1. Escolha o evento</h2>
+        <div class="campo">
+          <label for="emitir-evento">Evento</label>
+          <select id="emitir-evento"></select>
+        </div>
+        <div id="emitir-resumo-evento" class="ajuda"></div>
+      </div>
+
+      <div class="cartao">
+        <h2>2. Informe os participantes</h2>
+        <div class="grade duas">
+          <div>
+            <div class="campo">
+              <label for="emitir-lista">Cole a lista (uma pessoa por linha)</label>
+              <textarea id="emitir-lista" rows="8"
+                placeholder="nome;cpf;email;papel;carga horaria&#10;Maria Aparecida de Souza;12345678900;maria@exemplo.com;participante;20&#10;Joao Pedro Lima;98765432100;joao@exemplo.com;palestrante;4"></textarea>
+              <div class="ajuda">
+                Aceita separador <strong>;</strong> ou <strong>,</strong>. So o nome e obrigatorio.
+                A primeira linha pode ser o cabecalho.
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="campo">
+              <label for="emitir-arquivo">Ou envie um arquivo CSV</label>
+              <input type="file" id="emitir-arquivo" accept=".csv,text/csv,text/plain">
+              <div class="ajuda">Exportado do Excel, Google Sheets ou Google Forms.</div>
+            </div>
+            <div class="check">
+              <input type="checkbox" id="emitir-substituir">
+              <label for="emitir-substituir">Substituir certificados que ja existem (mantem o mesmo codigo)</label>
+            </div>
+            <button class="botao secundario" id="botao-conferir-lista" style="margin-top:.8rem">Conferir lista</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cartao oculto" id="cartao-conferencia">
+        <h2>3. Confira e emita</h2>
+        <div id="conferencia-avisos"></div>
+        <div class="tabela-rolagem">
+          <table>
+            <thead><tr><th>#</th><th>Nome</th><th>Documento</th><th>E-mail</th><th>Papel</th><th>Carga</th></tr></thead>
+            <tbody id="conferencia-lista"></tbody>
+          </table>
+        </div>
+        <div class="linha" style="margin-top:1rem">
+          <button class="botao" id="botao-emitir">Emitir certificados</button>
+          <span id="emitir-contagem" class="ajuda"></span>
+        </div>
+      </div>
+
+      <div class="cartao oculto" id="cartao-resultado">
+        <h2>Resultado da emissao</h2>
+        <div id="resultado-emissao"></div>
+      </div>
+    </section>
+
+    <!-- ---------------- CERTIFICADOS ---------------- -->
+    <section id="aba-certificados" class="aba oculto">
+      <div class="cartao">
+        <div class="linha">
+          <div class="campo" style="flex:1 1 220px;margin:0">
+            <label for="filtro-busca">Buscar por nome, codigo, CPF ou e-mail</label>
+            <input id="filtro-busca" placeholder="Digite e pressione Enter">
+          </div>
+          <div class="campo" style="flex:1 1 220px;margin:0">
+            <label for="filtro-evento">Evento</label>
+            <select id="filtro-evento"><option value="">Todos</option></select>
+          </div>
+          <div style="align-self:flex-end">
+            <button class="botao secundario" id="botao-buscar">Buscar</button>
+            <a class="botao secundario" id="botao-relatorio" href="#">Baixar relatorio CSV</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="cartao">
+        <div id="certificados-total" class="ajuda"></div>
+        <div class="tabela-rolagem">
+          <table>
+            <thead>
+              <tr><th>Codigo</th><th>Nome</th><th>Evento</th><th>Carga</th><th>Emissao</th><th>Situacao</th><th></th></tr>
+            </thead>
+            <tbody id="lista-certificados"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------- IDENTIDADE ---------------- -->
+    <section id="aba-identidade" class="aba oculto">
+      <div class="cartao">
+        <h2>Logotipo institucional</h2>
+        <p class="ajuda">
+          Envie o logotipo oficial do UNIVC em <strong>PNG com fundo transparente</strong>
+          (largura recomendada: 600&nbsp;px). Ele aparece no topo de todos os certificados.
+          Sem logotipo, a plataforma imprime um brasao vetorial com a sigla.
+        </p>
+        <div class="linha">
+          <img id="previa-logo" class="miniatura-logo oculto" alt="Logotipo atual">
+          <div>
+            <input type="file" id="arquivo-logo" accept="image/png,image/jpeg">
+            <div class="linha" style="margin-top:.6rem">
+              <button class="botao" id="botao-enviar-logo">Enviar logotipo</button>
+              <button class="botao secundario" id="botao-remover-logo">Remover</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cartao">
+        <h2>Dados institucionais impressos</h2>
+        <p class="ajuda">
+          Estes dados vem do arquivo <code>.env</code> do servidor e aparecem no cabecalho e no rodape
+          dos certificados. Para alterar, edite o <code>.env</code> e reinicie a plataforma.
+        </p>
+        <dl class="dados-lista" id="dados-institucionais"></dl>
+      </div>
+
+      <div class="cartao">
+        <h2>Imagens de assinatura</h2>
+        <p class="ajuda">
+          As assinaturas sao definidas por evento (aba <strong>Eventos</strong> &rarr; editor do evento).
+          Use PNG com fundo transparente, tracado escuro, cerca de 400&nbsp;&times;&nbsp;120&nbsp;px.
+        </p>
+      </div>
+    </section>
+
+    <!-- ---------------- AJUDA ---------------- -->
+    <section id="aba-ajuda" class="aba oculto">
+      <div class="cartao">
+        <h2>Perguntas frequentes</h2>
+
+        <h3>Como o participante valida o certificado?</h3>
+        <p>Lendo o QR Code impresso no documento ou digitando o codigo
+          (formato <code class="codigo">UNIVC-XXXX-XXXX-XXXX</code>) na pagina
+          <a id="ajuda-link-validacao" href="/validar" target="_blank" rel="noopener">/validar</a>.
+          A pagina mostra nome, evento, carga horaria, data de emissao e a situacao do documento.</p>
+
+        <h3>Onde os PDFs ficam guardados?</h3>
+        <p>No Google Drive configurado, dentro da pasta <strong>Certificados UNIVC</strong>:
+          <code>base-de-dados/</code> (registros em JSON), <code>certificados/</code> (PDFs, uma
+          subpasta por evento) e <code>identidade/</code> (logotipo e assinaturas).</p>
+
+        <h3>Emiti um certificado com erro. E agora?</h3>
+        <p>Se o erro for de digitacao no nome, exclua e emita de novo. Se o certificado ja circulou,
+          use <strong>Revogar</strong>: o codigo continua existindo, mas a pagina publica passa a
+          informar que o documento foi revogado.</p>
+
+        <h3>Mudei o layout. Os certificados antigos mudam?</h3>
+        <p>Nao automaticamente. Use <strong>Reemitir todos os certificados deste evento</strong> no
+          editor do evento. Os codigos sao preservados; apenas o PDF e regerado.</p>
+
+        <h3>O que e o selo digital?</h3>
+        <p>Uma assinatura HMAC-SHA256 dos dados do certificado. Se alguem editar o registro
+          diretamente no Drive, a validacao acusa <strong>divergencia</strong>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape-institucional" id="rodape-app"></footer>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
