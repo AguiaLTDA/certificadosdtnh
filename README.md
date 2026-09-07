@@ -219,7 +219,8 @@ docs/                      Google Drive, implantação e arquitetura
 ## Documentação
 
 - [docs/GOOGLE-DRIVE.md](docs/GOOGLE-DRIVE.md) — conectar o Google Drive passo a passo
-- [docs/IMPLANTACAO.md](docs/IMPLANTACAO.md) — colocar no ar com domínio e HTTPS
+- [docs/VPS-UBUNTU.md](docs/VPS-UBUNTU.md) — guia completo para colocar no ar em um VPS Ubuntu/Debian, com script de instalação automática
+- [docs/IMPLANTACAO.md](docs/IMPLANTACAO.md) — visão geral de todas as formas de hospedar (Render, Railway, VPS)
 - [docs/ARQUITETURA.md](docs/ARQUITETURA.md) — como funciona por dentro, modelo de dados e limites
 
 ---

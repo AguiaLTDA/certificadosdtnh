@@ -56,6 +56,10 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## Opção 3 — Servidor próprio (VPS ou servidor do UNIVC)
 
+> **Guia completo e copiar-colar, com script de instalação automática, orientação de domínio
+> e checklist de verificação:** [`docs/VPS-UBUNTU.md`](VPS-UBUNTU.md). O resumo abaixo mostra
+> só os comandos essenciais — use o guia dedicado para a instalação de verdade.
+
 Em Ubuntu/Debian:
 
 ```bash
