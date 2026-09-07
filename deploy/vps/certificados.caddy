@@ -1,0 +1,31 @@
+# Bloco de site dos CERTIFICADOS. Vive em conf.d/ do Caddy publico compartilhado
+# (agente-univc) e e puxado por import automatico -- nunca escreve no
+# Caddyfile principal daquele projeto (mesma convencao do portal.caddy e do
+# checkin.caddy, que ja vivem ao lado deste arquivo em producao).
+#
+# Instalar na VPS (fora deste repo):
+#   cp deploy/vps/certificados.caddy /opt/agente-univc/publicador/conf.d/certificados.caddy
+#   docker exec univc-publicador caddy reload --config /etc/caddy/Caddyfile
+#
+# Troque o host abaixo pelo dominio definitivo assim que o DNS de
+# certificados.univc.br estiver apontado para este servidor -- e ATUALIZE
+# BASE_URL no .env para bater com o mesmo endereco (ele fica gravado dentro
+# de todo QR Code ja impresso).
+
+certificados.206-109-58-112.sslip.io {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "same-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+		-Server
+	}
+
+	reverse_proxy certificados-app:3000 {
+		header_up X-Real-IP {remote_host}
+	}
+}

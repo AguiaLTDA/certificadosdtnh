@@ -1,0 +1,32 @@
+# Compose de producao da Plataforma de Certificados UNIVC.
+#
+# Nao inclui banco (a base de dados e o Google Drive, externo) nem proxy TLS:
+# este projeto so sobe a aplicacao, e se conecta a rede Docker externa onde ja
+# existe um Caddy publico fazendo HTTPS + reverse proxy (ver deploy/vps/ e
+# docs/VPS-COMPARTILHADO.md).
+#
+# Uso (no servidor, dentro de /opt/certificados):
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Atualizar depois de um "git pull":
+#   docker compose -f docker-compose.prod.yml up -d --build
+
+services:
+  certificados-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: certificados-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - publico
+
+networks:
+  # Rede do Caddy publico compartilhado (agente-univc). Este container entra
+  # nela so para o Caddy conseguir alcancar `certificados-app` pelo nome;
+  # nenhuma porta e publicada no host.
+  publico:
+    name: agente-univc_runtime
+    external: true
