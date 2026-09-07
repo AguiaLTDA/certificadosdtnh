@@ -18,8 +18,13 @@ services:
       dockerfile: Dockerfile
     container_name: certificados-app
     restart: unless-stopped
-    env_file:
-      - .env
+    # O .env e montado como arquivo (nao "env_file:") de proposito: o
+    # "env_file:" do Compose faz substituicao de variaveis "$palavra" dentro
+    # dos valores, o que corrompe silenciosamente segredos com "$" (por
+    # exemplo, o hash scrypt de ADMIN_SENHA_HASH). Montado como arquivo, o
+    # dotenv da aplicacao le byte a byte, sem nenhuma interpolacao.
+    volumes:
+      - ./.env:/app/.env:ro
     networks:
       - publico
 
